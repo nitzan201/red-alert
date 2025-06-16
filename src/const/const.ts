@@ -1,0 +1,2 @@
+export const ISRAEL_COORDINATE = [35.0818155, 31.4117257];
+
