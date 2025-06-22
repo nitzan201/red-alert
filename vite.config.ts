@@ -15,6 +15,10 @@ export default defineConfig({
       "@/viewer": path.resolve(__dirname, "./src/viewer"),
       "@data": path.resolve(__dirname, "./src/data"),
       "@context": path.resolve(__dirname, "./src/context"),
+      "@/component": path.resolve(__dirname, "./src/components"),
     },
+  },
+  server: {
+    host: true,
   },
 });

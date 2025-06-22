@@ -13,7 +13,6 @@ app.get("/api/alerts", async (req, res) => {
     const response = await axios.get(
       "https://www.oref.org.il/WarningMessages/alert/alerts.json"
     );
-    console.log(`log alert res: ${response.data}`);
     res.json(response.data);
   } catch (error) {
     res.status(500).send("Failed to fetch alerts");

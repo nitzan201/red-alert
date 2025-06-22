@@ -8,6 +8,7 @@ import { getCityLocationReq } from "@/request/getCityLocationReq";
 import citiesLocation from "@data/citiesLocation.json";
 import MockAlertJson from "@data/mock/mockRedAlertData0.json";
 import MockAlertJson1 from "@data/mock/mockRedAlertData1.json";
+import areasNames from "@data/areasNames.json";
 import { getRandomItem } from "@/util/util";
 
 const randomMock = () =>
@@ -18,13 +19,36 @@ const isMock = false;
 class RedAlert {
   locations: LocationsObj = citiesLocation;
 
-  async getCityLocation(city: string) {
+  async updateData() {
+    const citiesKeys = Object.keys(citiesLocation);
+    const res: Record<string, DistrictWithLocation> = {};
+    for (const citiesKey of citiesKeys) {
+      const cities = citiesLocation[citiesKey as keyof typeof citiesLocation];
+      const data = await this.getCityLocation(cities.label, cities.areaname);
+      if (data) res[citiesKey] = { ...cities, ...data };
+    }
+    return res;
+  }
+
+  async getCityLocation(city: string, areaName: string) {
     const data = await getCityLocationReq(city);
     if (data.length > 0) {
       return {
         lat: parseFloat(data[0].lat),
         lon: parseFloat(data[0].lon),
         boundingbox: data[0].boundingbox,
+      };
+    } else if (areaName in areasNames) {
+      const locationsData = areasNames[areaName as keyof typeof areasNames];
+      return {
+        lat: locationsData.lat,
+        lon: locationsData.lon,
+        boundingbox: locationsData.boundingbox as [
+          string,
+          string,
+          string,
+          string
+        ],
       };
     } else {
       console.warn(`City not found ${city}`);

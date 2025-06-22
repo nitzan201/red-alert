@@ -3,6 +3,8 @@ import RedAlert from "./RedAlertClass";
 import { useCesiumViewer } from "@/context/hook/useCesiumViewer";
 import { createPolygon } from "@/util/createPolygon";
 import type { RedAlertData } from "@/interface/interface";
+import { createPoints } from "@/util/createPoints";
+import { EntityType } from "@/interface/enum";
 
 const POLLING_INTERVAL = 10 * 1000; // 10 seconds
 const HISTORY_LENGTH = 3;
@@ -34,17 +36,24 @@ export const useRedAlert = () => {
     try {
       const data = await redAlertRef.current.alarmCites();
       if (!data) return;
+      if (alertsData.some((alertD) => alertD.id === data.id)) return;
 
       setAlertsData((prev) =>
         pushToFixedArray(data, [...prev], (remove) => {
-          if (remove) viewer.entities.removeById(remove?.id);
+          if (!remove) return;
+          viewer.entities.removeById(remove?.id);
+          viewer.dataSources.remove(
+            viewer.dataSources.getByName(remove.id)?.[0]
+          );
         })
       );
+
       createPolygon(viewer, data);
+      createPoints(viewer, data);
     } catch (error) {
       console.error("Failed to fetch red alert data:", error);
     }
-  }, [viewerInstance]);
+  }, [alertsData, viewerInstance]);
 
   useEffect(() => {
     if (!activeLoop || !viewerInstance.current) return;
@@ -60,5 +69,22 @@ export const useRedAlert = () => {
     };
   }, [activeLoop, fetchAndDisplayAlerts, viewerInstance]);
 
-  return { activeLoop, setActiveLoop, alertsData };
+  const toggleEntityVisibility = (
+    id: string,
+    entityType: EntityType,
+    show: boolean
+  ) => {
+    const viewer = viewerInstance.current;
+    if (!viewer) return;
+    if (entityType === EntityType.Polygon) {
+      const entity = viewer.entities.getById(id);
+      if (entity) entity.show = show;
+    } else if (entityType === EntityType.Points) {
+      const dataSource = viewer.dataSources.getByName(id)[0];
+      if (dataSource) dataSource.show = show;
+      viewer.scene.requestRender();
+    }
+  };
+
+  return { activeLoop, setActiveLoop, alertsData, toggleEntityVisibility };
 };

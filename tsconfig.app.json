@@ -30,7 +30,8 @@
       "@/util/*": ["./src/util/*"], // Maps '@/assets/' to 'src/assets/'
       "@/viewer/*": ["./src/viewer/*"], // Maps '@/assets/' to 'src/assets/'
       "@data/*": ["./src/data/*"], // Maps '@/assets/' to 'src/assets/'
-      "@context/*": ["./src/context/*"] // Maps '@/assets/' to 'src/assets/'
+      "@context/*": ["./src/context/*"], // Maps '@/assets/' to 'src/assets/'
+      "@/component": ["./src/components/*"]
     }
   },
   "include": ["src"]
